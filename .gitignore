@@ -106,7 +106,7 @@ temp/
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
+*.class
 *.so
 .Python
 env/
@@ -119,6 +119,7 @@ venv.bak/
 ml-service/__pycache__/
 ml-service/*.pyc
 ml-service/.pytest_cache/
+ml-service/venv/
 
 # Reports and logs
 reports/
