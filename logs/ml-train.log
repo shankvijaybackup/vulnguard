@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/vijayshankar/Downloads/TechPrint/vulnguard/ml-service/train_model.py", line 9, in <module>
+    from app import create_and_train_model
+  File "/Users/vijayshankar/Downloads/TechPrint/vulnguard/ml-service/app.py", line 247
+    logger.info(f"Training accuracy: {model.score(X_train, y_train)".3f"}")
+                                                                     ^
+SyntaxError: invalid decimal literal

@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  zap:
+    build: .
+    container_name: vulnguard-zap
+    ports:
+      - "8080:8080"
+    environment:
+      - ZAP_API_URL=http://localhost:8080
+      - ZAP_API_KEY=${ZAP_API_KEY:-}
+      - ML_SERVICE_URL=${ML_SERVICE_URL:-http://localhost:8001}
+      - REDIS_URL=${REDIS_URL:-redis://localhost:6379}
+    volumes:
+      - zap_data:/zap/scans
+      - ./policies:/zap/policies:ro  # Mount custom scan policies if needed
+    networks:
+      - vulnguard-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/JSON/core/view/version/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    command: >
+      bash -c "
+        # Start ZAP in daemon mode first
+        zap.sh -daemon -port 8080 -host 0.0.0.0 &
+        ZAP_PID=$$!
+
+        # Wait for ZAP to be ready
+        echo 'Waiting for ZAP to start...'
+        until curl -f http://localhost:8080/JSON/core/view/version/ > /dev/null 2>&1; do
+          sleep 5
+        done
+        echo 'ZAP is ready!'
+
+        # Run the scanner worker
+        python3 scanner_worker.py
+      "
+
+volumes:
+  zap_data:
+    driver: local
+
+networks:
+  vulnguard-network:
+    driver: bridge
